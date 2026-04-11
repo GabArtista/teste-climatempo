@@ -1,0 +1,128 @@
+{
+  "model": "qwen2.5:1.5b",
+  "methodology": "prompt-sampling-binary-classification",
+  "dataset_size": 18,
+  "positive_count": 8,
+  "negative_count": 10,
+  "negative_breakdown": {
+    "off_topic": 7,
+    "incomplete_no_city": 3
+  },
+  "true_positives": 1,
+  "false_positives": 0,
+  "false_negatives": 7,
+  "true_negatives": 10,
+  "precision": 1.0,
+  "recall": 0.125,
+  "f1_score": 0.2222,
+  "details": [
+    {
+      "prompt": "Como está o tempo em São Paulo?",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Qual a previsão do tempo para Curitiba nos próximos 3 dias?",
+      "expected": true,
+      "actual": true,
+      "correct": true
+    },
+    {
+      "prompt": "Vai chover em Manaus amanhã?",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Me diga a temperatura máxima em Brasília",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Previsão do tempo para o Rio de Janeiro essa semana",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Como vai estar o clima em Fortaleza?",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Está chovendo em Porto Alegre?",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Qual a temperatura mínima em Belo Horizonte hoje?",
+      "expected": true,
+      "actual": false,
+      "correct": false
+    },
+    {
+      "prompt": "Olá, tudo bem?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Qual a capital do Brasil?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Me conte uma piada",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Quanto é 2 + 2?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Qual o seu nome?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "O que é machine learning?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Me explique o que é uma API REST",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Qual é a previsão do tempo?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Vai chover amanhã?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    },
+    {
+      "prompt": "Como está o clima hoje?",
+      "expected": false,
+      "actual": false,
+      "correct": true
+    }
+  ]
+}
