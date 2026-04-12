@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.v1.routes import api_router
 from app.Http.Middleware.ErrorHandler import ErrorHandlerMiddleware
 from app.Http.Middleware.LoggingMiddleware import LoggingMiddleware
-from config.settings import get_settings
+from config.settings import get_settings, Settings
 
 settings = get_settings()
 
@@ -31,9 +31,53 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def _auto_select_model(settings: Settings) -> None:
+    """Query Ollama and auto-select the best available model from priority list."""
+    from openai import AsyncOpenAI
+    from openai import APIConnectionError as OllamaConnectionError
+
+    client = AsyncOpenAI(
+        base_url=settings.ollama_base_url,
+        api_key=settings.ollama_api_key,
+    )
+    try:
+        models_response = await client.models.list()
+        available_ids = {m.id for m in models_response.data}
+        logger.info("Ollama available models: %s", sorted(available_ids))
+
+        for rank, candidate in enumerate(settings.model_priority, start=1):
+            matched = any(
+                m == candidate or m.startswith(candidate.split(":")[0] + ":" + candidate.split(":")[1])
+                for m in available_ids
+            )
+            if matched:
+                if settings.ollama_model != candidate:
+                    logger.info(
+                        "Auto-selected model: %s (priority rank %d, was: %s)",
+                        candidate, rank, settings.ollama_model,
+                    )
+                    settings.ollama_model = candidate
+                else:
+                    logger.info("Model confirmed: %s (priority rank %d)", candidate, rank)
+                return
+
+        logger.warning(
+            "No priority model found in Ollama. Available: %s. Using configured: %s",
+            sorted(available_ids), settings.ollama_model,
+        )
+    except OllamaConnectionError:
+        logger.warning(
+            "Ollama not reachable at startup — skipping auto-selection. "
+            "Using configured model: %s", settings.ollama_model,
+        )
+    except Exception as exc:
+        logger.warning("Auto-model selection failed (%s). Using: %s", exc, settings.ollama_model)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events."""
+    await _auto_select_model(settings)
     logger.info("Starting %s v%s", settings.app_name, settings.app_version)
     logger.info("Ollama model: %s @ %s", settings.ollama_model, settings.ollama_base_url)
     logger.info("Open-Meteo API: %s", settings.open_meteo_base_url)

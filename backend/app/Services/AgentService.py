@@ -197,7 +197,7 @@ class AgentService:
             # Weather intent but no city found — ask for it
             logger.info("Weather intent detected, no city found — asking user")
             response = await self._llm_ask_for_city(message, history)
-            return ChatResponse(response=response, tool_called=False, city_queried=None)
+            return ChatResponse(response=response, tool_called=False, city_queried=None, reason="no_city")
 
         days = self._extract_days(message)
         logger.info("Weather query: city=%s days=%d", city['name'], days)
@@ -211,6 +211,7 @@ class AgentService:
                 response=str(exc),
                 tool_called=False,
                 city_queried=city['name'],
+                reason="non_capital",
             )
 
         # Use LLM only to format the response — data is real, from the API
@@ -219,6 +220,7 @@ class AgentService:
             response=formatted,
             tool_called=True,
             city_queried=city['name'],
+            reason="success",
         )
 
     async def _llm_format_weather(
@@ -283,4 +285,4 @@ class AgentService:
             messages=messages,
         )
         content = resp.choices[0].message.content or "Como posso ajudar?"
-        return ChatResponse(response=content, tool_called=False, city_queried=None)
+        return ChatResponse(response=content, tool_called=False, city_queried=None, reason="non_weather")

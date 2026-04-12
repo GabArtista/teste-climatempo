@@ -72,8 +72,20 @@ class WeatherService:
                 logger.error("Open-Meteo API timeout: %s", exc)
                 raise WeatherAPIError("Serviço de previsão do tempo não respondeu a tempo.") from exc
             except httpx.HTTPStatusError as exc:
-                logger.error("Open-Meteo API error %d: %s", exc.response.status_code, exc)
-                raise WeatherAPIError(f"Erro na API de previsão: {exc.response.status_code}") from exc
+                status = exc.response.status_code
+                logger.error("Open-Meteo API error %d: %s", status, exc)
+                if status == 429:
+                    raise WeatherAPIError(
+                        "Limite de requisições da API de previsão atingido. Tente novamente em instantes."
+                    ) from exc
+                elif status >= 500:
+                    raise WeatherAPIError(
+                        f"Serviço de previsão do tempo temporariamente indisponível (HTTP {status})."
+                    ) from exc
+                else:
+                    raise WeatherAPIError(
+                        f"Erro na API de previsão do tempo (HTTP {status})."
+                    ) from exc
 
         data = response.json()
         return self._parse_response(city_data["name"], city_data, data)

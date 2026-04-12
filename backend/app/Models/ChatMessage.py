@@ -1,5 +1,6 @@
 """Domain models for chat interactions."""
 from enum import Enum
+from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -47,4 +48,14 @@ class ChatResponse(BaseModel):
     city_queried: str | None = Field(
         default=None,
         description="City name passed to weather tool, if called",
+    )
+    reason: Literal["success", "no_city", "non_capital", "non_weather"] | None = Field(
+        default=None,
+        description=(
+            "Why the tool was or was not called: "
+            "'success' = tool called and returned data, "
+            "'no_city' = weather intent but no city mentioned, "
+            "'non_capital' = city mentioned but not a Brazilian state capital, "
+            "'non_weather' = query not related to weather"
+        ),
     )

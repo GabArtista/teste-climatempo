@@ -1,0 +1,76 @@
+{
+  "layer": "hybrid-detection",
+  "description": "System recall using deterministic keyword+ngram detection (LLM mocked)",
+  "dataset_size": 10,
+  "positive_count": 4,
+  "negative_count": 6,
+  "true_positives": 4,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "true_negatives": 6,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "details": [
+    {
+      "prompt": "Como está o tempo em São Paulo?",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Temperatura em Curitiba amanhã",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Vai chover em Manaus?",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Clima de Fortaleza essa semana",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Previsão Campinas",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Clima Uberlândia",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Vai chover muito?",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Temperatura amanhã?",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Olá, tudo bem?",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Quanto é 2+2?",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    }
+  ]
+}

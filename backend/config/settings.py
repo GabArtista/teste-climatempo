@@ -9,12 +9,20 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        protected_namespaces=('settings_',),
     )
 
     # Ollama / LLM
     ollama_base_url: str = "http://localhost:11434/v1"
     ollama_model: str = "qwen2.5:1.5b"
     ollama_api_key: str = "ollama"  # Required by OpenAI client, not used by Ollama
+    model_priority: list[str] = [
+        "qwen2.5:7b",
+        "llama3.1:8b",
+        "qwen2.5:3b",
+        "llama3.2:3b",
+        "qwen2.5:1.5b",
+    ]
 
     # Open-Meteo
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"

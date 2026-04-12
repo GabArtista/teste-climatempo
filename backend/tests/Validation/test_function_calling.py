@@ -18,6 +18,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from main import app
+from config.settings import get_settings
 
 # --- Dataset ---
 
@@ -105,7 +106,7 @@ def _run_validation() -> dict:
     print(f"\n{'='*60}")
     print(f"  RESULTS")
     print(f"{'='*60}")
-    print(f"  Model:      qwen2.5:1.5b")
+    print(f"  Model:      {get_settings().ollama_model}")
     print(f"  Dataset:    {len(POSITIVE_PROMPTS) + len(NEGATIVE_PROMPTS)} prompts")
     print(f"  TP={tp}  FP={fp}  FN={fn}  TN={tn}")
     print(f"  Precision:  {precision:.4f}")
@@ -114,7 +115,7 @@ def _run_validation() -> dict:
     print(f"{'='*60}\n")
 
     return {
-        "model": "qwen2.5:1.5b",
+        "model": get_settings().ollama_model,
         "methodology": "prompt-sampling-binary-classification",
         "dataset_size": len(POSITIVE_PROMPTS) + len(NEGATIVE_PROMPTS),
         "positive_count": len(POSITIVE_PROMPTS),
