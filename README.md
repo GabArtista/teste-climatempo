@@ -2,7 +2,7 @@
 
 Agente conversacional de previsão do tempo com function calling sobre LLM local (Ollama). O sistema interpreta consultas em linguagem natural, identifica capitais brasileiras via detecção híbrida (keywords + n-gram determinístico) e busca dados reais da Open-Meteo API. O LLM é usado exclusivamente para formatação da resposta final, garantindo respostas consistentes e sem alucinações sobre dados meteorológicos.
 
-**Repositório:** https://github.com/GabArtistas/teste-climatempo
+**Repositório:** https://github.com/GabArtista/teste-climatempo
 
 ---
 
