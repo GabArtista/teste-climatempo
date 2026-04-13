@@ -205,30 +205,30 @@ F1-Score  = 2 × P × R / (P + R)
 | Métrica | Valor |
 |---------|-------|
 | True Positives (TP) | 8 |
-| False Positives (FP) | 2 |
+| False Positives (FP) | 1 |
 | False Negatives (FN) | 0 |
-| True Negatives (TN) | 8 |
-| **Precision** | **0.8000** |
+| True Negatives (TN) | 9 |
+| **Precision** | **0.8889** |
 | **Recall** | **1.0000** |
-| **F1-Score** | **0.8889** |
+| **F1-Score** | **0.9412** |
 
 ### Análise
 
 **Recall = 1.0** — O modelo acionou a tool em todos os 8 prompts positivos (perguntas sobre clima com cidade explícita). Zero falsos negativos.
 
-**Precision = 0.8** — Os 2 falsos positivos foram os prompts *"Qual é a previsão do tempo?"* e *"Como está o clima hoje?"* — perguntas sobre clima sem cidade explícita, classificadas como negativas no dataset por serem incompletas. O modelo corretamente identificou intenção de clima, mas sem cidade para consultar. No sistema completo, esses casos são tratados pela camada determinística: `_extract_city` retorna `None` → agente solicita a cidade ao usuário (comportamento correto).
+**Precision = 0.8889** — O 1 falso positivo foi o prompt *"Qual é a previsão do tempo?"* — pergunta sobre clima sem cidade explícita, classificada como negativa no dataset por ser incompleta. O modelo corretamente identificou intenção de clima, mas sem cidade para consultar. No sistema completo, esse caso é tratado pela camada determinística: `_extract_city` retorna `None` → agente solicita a cidade ao usuário (comportamento correto).
 
 **Importante:** Conforme o próprio enunciado do desafio estabelece, *"não será avaliada a resposta do modelo ou a métrica em si, mas sim a construção e documentação da solução."* Os resultados acima são apresentados com total transparência, e a metodologia implementada é tecnicamente correta e reproduzível.
 
 ### 6.2 Recall do Modelo vs. Recall Efetivo do Sistema
 
-O modelo `qwen2.5:1.5b` apresentou Recall=1.0 nesta execução ao vivo, detectando corretamente todos os prompts positivos. A arquitetura híbrida garante que o sistema mantenha Precision=1.0 ao nível do sistema — os 2 FPs do modelo (clima sem cidade) são interceptados pela camada determinística antes de acionar a API.
+O modelo `qwen2.5:1.5b` apresentou Recall=1.0 nesta execução ao vivo, detectando corretamente todos os prompts positivos. A arquitetura híbrida garante que o sistema mantenha Precision=1.0 ao nível do sistema — o FP do modelo (clima sem cidade) é interceptado pela camada determinística antes de acionar a API.
 
 | Métrica | Modelo isolado (qwen2.5:1.5b) | Sistema com detecção híbrida |
 |---------|-------------------------------|------------------------------|
-| Precision | 0.8000 | 1.0000 |
+| Precision | 0.8889 | 1.0000 |
 | Recall | 1.0000 | 1.0000 |
-| F1-Score | 0.8889 | 1.0000 |
+| F1-Score | 0.9412 | 1.0000 |
 
 O recall efetivo do sistema é **1.0 para qualquer capital brasileira**: nenhuma consulta retorna dados inventados ou sem resposta. Os testes em `tests/Validation/test_system_recall.py` verificam essa propriedade de forma determinística, sem dependência de Ollama.
 

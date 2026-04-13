@@ -9,12 +9,12 @@
     "incomplete_no_city": 3
   },
   "true_positives": 8,
-  "false_positives": 2,
+  "false_positives": 1,
   "false_negatives": 0,
-  "true_negatives": 8,
-  "precision": 0.8,
+  "true_negatives": 9,
+  "precision": 0.8889,
   "recall": 1.0,
-  "f1_score": 0.8889,
+  "f1_score": 0.9412,
   "details": [
     {
       "prompt": "Como está o tempo em São Paulo?",
@@ -121,8 +121,8 @@
     {
       "prompt": "Como está o clima hoje?",
       "expected": false,
-      "actual": true,
-      "correct": false
+      "actual": false,
+      "correct": true
     }
   ]
 }
