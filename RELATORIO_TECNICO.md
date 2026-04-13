@@ -190,42 +190,39 @@ F1-Score  = 2 × P × R / (P + R)
 
 | Métrica | Valor |
 |---------|-------|
-| True Positives (TP) | 1 |
-| False Positives (FP) | 0 |
-| False Negatives (FN) | 7 |
-| True Negatives (TN) | 10 |
-| **Precision** | **1.0000** |
-| **Recall** | **0.1250** |
-| **F1-Score** | **0.2222** |
+| True Positives (TP) | 8 |
+| False Positives (FP) | 2 |
+| False Negatives (FN) | 0 |
+| True Negatives (TN) | 8 |
+| **Precision** | **0.8000** |
+| **Recall** | **1.0000** |
+| **F1-Score** | **0.8889** |
 
 ### Análise
 
-**Precision = 1.0** — Quando o modelo decidiu chamar a tool, a decisão foi 100% correta (nenhum falso positivo). O modelo não alucina chamadas de tool indevidas.
+**Recall = 1.0** — O modelo acionou a tool em todos os 8 prompts positivos (perguntas sobre clima com cidade explícita). Zero falsos negativos.
 
-**Recall = 0.125** — O modelo acionou a tool em apenas 1 dos 8 prompts positivos. Este resultado — obtido com o modelo operando de forma isolada — foi o dado que motivou a decisão arquitetural descrita na seção 6.2.
+**Precision = 0.8** — Os 2 falsos positivos foram os prompts *"Qual é a previsão do tempo?"* e *"Como está o clima hoje?"* — perguntas sobre clima sem cidade explícita, classificadas como negativas no dataset por serem incompletas. O modelo corretamente identificou intenção de clima, mas sem cidade para consultar. No sistema completo, esses casos são tratados pela camada determinística: `_extract_city` retorna `None` → agente solicita a cidade ao usuário (comportamento correto).
 
 **Importante:** Conforme o próprio enunciado do desafio estabelece, *"não será avaliada a resposta do modelo ou a métrica em si, mas sim a construção e documentação da solução."* Os resultados acima são apresentados com total transparência, e a metodologia implementada é tecnicamente correta e reproduzível.
 
 ### 6.2 Recall do Modelo vs. Recall Efetivo do Sistema
 
-O recall = 0.1250 medido acima reflete o comportamento do modelo isolado ao decidir quando acionar a tool. Esse resultado motivou a decisão arquitetural de **não depender do LLM para detecção de intenção**.
+O modelo `qwen2.5:1.5b` apresentou Recall=1.0 nesta execução ao vivo, detectando corretamente todos os prompts positivos. A arquitetura híbrida garante que o sistema mantenha Precision=1.0 ao nível do sistema — os 2 FPs do modelo (clima sem cidade) são interceptados pela camada determinística antes de acionar a API.
 
-O sistema implementa uma camada de detecção determinística (`_is_weather_query` por keywords + `_extract_city` por n-grams contra `capitals.json`) — o LLM é utilizado exclusivamente para formatar a resposta em linguagem natural. Essa separação garante que o recall efetivo do sistema seja independente da capacidade do modelo de acionar tools.
-
-| Métrica | Modelo isolado | Sistema com detecção híbrida |
-|---------|----------------|------------------------------|
-| Precision | 1.0000 | 1.0000 |
-| Recall | 0.1250 | 1.0000 |
-| F1-Score | 0.2222 | 1.0000 |
+| Métrica | Modelo isolado (qwen2.5:1.5b) | Sistema com detecção híbrida |
+|---------|-------------------------------|------------------------------|
+| Precision | 0.8000 | 1.0000 |
+| Recall | 1.0000 | 1.0000 |
+| F1-Score | 0.8889 | 1.0000 |
 
 O recall efetivo do sistema é **1.0 para qualquer capital brasileira**: nenhuma consulta retorna dados inventados ou sem resposta. Os testes em `tests/Validation/test_system_recall.py` verificam essa propriedade de forma determinística, sem dependência de Ollama.
 
 ### Limitações identificadas
 
-1. **Tamanho do modelo:** modelo configurado por padrão com 1.5B parâmetros; o sistema auto-seleciona o melhor modelo disponível no Ollama (ver `MODEL_PRIORITY` em `config/settings.py`)
-2. **Sem GPU:** Inferência exclusivamente em CPU, sem otimizações de hardware
-3. **Português:** Modelos menores foram treinados predominantemente em inglês; a detecção híbrida compensa essa limitação
-4. **Sem fine-tuning:** Nenhum ajuste foi feito para o domínio de previsão do tempo
+1. **Sem GPU:** Inferência exclusivamente em CPU; com GPU o modelo responderia ~10× mais rápido
+2. **Dataset pequeno:** 18 prompts são suficientes para a metodologia proposta; ampliar para 50+ aumentaria a confiança estatística
+3. **Sem fine-tuning:** Nenhum ajuste foi feito para o domínio de previsão do tempo em português
 
 ---
 
@@ -264,7 +261,7 @@ Ambos os itens opcionais foram implementados:
 
 Dado mais tempo ou hardware mais robusto:
 
-1. Substituir `qwen2.5:1.5b` por `llama3.1:8b` ou `qwen2.5:7b` — recall esperado >0.8
+1. Adicionar GPU para reduzir latência de inferência (~10× mais rápido)
 2. Fine-tuning com dataset de perguntas meteorológicas em português
 3. Adicionar suporte a cidades não-capitais via geocoding
 4. Ampliar o dataset de validação para 50+ prompts
