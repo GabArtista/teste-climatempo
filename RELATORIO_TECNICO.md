@@ -8,7 +8,16 @@
 
 ## 1. Visão Geral da Solução
 
-A solução implementa um agente de IA capaz de consultar previsões do tempo para capitais brasileiras por meio de **function calling** em formato compatível com o cliente OpenAI. O agente utiliza um modelo de linguagem local (Ollama) e integra a API pública Open-Meteo para obter dados meteorológicos reais.
+A solução implementa um agente de IA que integra **function calling** em formato compatível com o cliente OpenAI, com uma camada de detecção determinística que garante confiabilidade independente do modelo. O agente utiliza Ollama localmente e a API pública Open-Meteo para dados meteorológicos reais.
+
+### Arquitetura híbrida
+
+A decisão de chamar a tool é feita em duas camadas complementares:
+
+1. **Camada determinística** — `_is_weather_query()` por keywords + `_extract_city()` por n-grams contra `capitals.json`. Garante recall = 1.0 para qualquer capital brasileira, independente do modelo.
+2. **Camada LLM** — O modelo recebe a `WEATHER_TOOL` em formato OpenAI e é utilizado para formatar a resposta final e solicitar a cidade quando necessário.
+
+Essa separação resolve a limitação conhecida de modelos pequenos (1.5B parâmetros) em português: recall baixo ao decidir por tool calling de forma autônoma.
 
 ### Fluxo principal
 
@@ -17,24 +26,29 @@ Usuário → POST /api/v1/agent/chat
              │
              ▼
         AgentService
-        Envia mensagem ao LLM com tools=[WEATHER_TOOL]
+        _is_weather_query() — detecção determinística por keywords
              │
-             ├─ LLM retorna resposta direta (sem tool)
-             │     └─ Retorna ao usuário
+             ├─ Não é consulta de clima
+             │     └─ LLM responde livremente → Usuário
              │
-             └─ LLM retorna tool_call: get_weather_forecast(city, days)
+             └─ É consulta de clima
                    │
                    ▼
-             WeatherService → GET api.open-meteo.com/v1/forecast
+             _extract_city() — n-grams contra capitals.json
                    │
-                   ▼
-             Resultado appendado ao histórico
+                   ├─ Cidade não encontrada
+                   │     └─ LLM pede cidade ao usuário (WEATHER_TOOL definida)
                    │
-                   ▼
-             Segunda chamada ao LLM com resultado da tool
-                   │
-                   ▼
-             Resposta formatada → Usuário
+                   └─ Capital identificada
+                         │
+                         ▼
+                   WeatherService → GET api.open-meteo.com/v1/forecast
+                         │
+                         ▼
+                   LLM formata resposta com dados reais da API
+                         │
+                         ▼
+                   Resposta formatada → Usuário
 ```
 
 ---
