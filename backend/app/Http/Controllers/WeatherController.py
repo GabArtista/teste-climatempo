@@ -63,7 +63,7 @@ async def list_cities(
     weather_service: WeatherService = Depends(get_weather_service),
 ) -> dict:
     """Return list of all supported Brazilian state capitals."""
-    cities = weather_service._repo.list_cities()
+    cities = weather_service.get_repository().list_cities()
     return {"cities": cities, "count": len(cities)}
 
 
@@ -86,7 +86,7 @@ async def data_quality(
     'Campo Grande - Rio Grande do Norte' is an incorrect entry.
     This endpoint documents the issue for transparency.
     """
-    anomalies = weather_service._repo.get_anomalies()
+    anomalies = weather_service.get_repository().get_anomalies()
     return {
         "anomalies_found": len(anomalies),
         "anomalies": anomalies,

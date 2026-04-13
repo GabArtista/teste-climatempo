@@ -7,9 +7,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    # OLLAMA_MODEL não é definido aqui — o backend auto-seleciona o melhor
+    # modelo disponível no Ollama via model_priority em config/settings.py.
+    # Para forçar um modelo específico, adicione: - OLLAMA_MODEL=qwen2.5:7b
     environment:
       - OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
-      - OLLAMA_MODEL=qwen2.5:1.5b
       - OPEN_METEO_BASE_URL=https://api.open-meteo.com/v1
       - REQUEST_TIMEOUT=30
       - LOG_LEVEL=INFO

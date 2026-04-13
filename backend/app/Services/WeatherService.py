@@ -28,6 +28,10 @@ class WeatherService:
         self._settings = settings
         self._repo = repo
 
+    def get_repository(self) -> CapitalsRepository:
+        """Return the capitals repository used by this service."""
+        return self._repo
+
     async def get_forecast(self, city: str, forecast_days: int = 3) -> WeatherResponse:
         """
         Fetch weather forecast for a Brazilian capital city.

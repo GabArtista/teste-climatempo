@@ -60,6 +60,11 @@ INFO     | Application startup complete.
 INFO     | Uvicorn running on http://127.0.0.1:8000
 ```
 
+> **Auto-seleção de modelo:** Ao iniciar, o sistema verifica automaticamente
+> quais modelos estão disponíveis no Ollama e seleciona o melhor da lista de
+> prioridade: qwen2.5:7b → llama3.1:8b → qwen2.5:3b → llama3.2:3b → qwen2.5:1.5b
+> O log de startup mostra qual modelo foi selecionado.
+
 ---
 
 ## PASSO 2 — FRONTEND
@@ -107,6 +112,22 @@ curl -X POST http://localhost:8000/api/v1/agent/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "Como está o tempo em Curitiba nos próximos 3 dias?", "history": []}'
 ```
+Exemplo de resposta JSON:
+```json
+{
+  "response": "...",
+  "tool_called": true,
+  "city_queried": "São Paulo - São Paulo",
+  "reason": "success"
+}
+```
+
+O campo `reason` indica por que a tool foi/não foi chamada:
+- `"success"` — consulta de clima com capital encontrada
+- `"no_city"` — intenção de clima detectada mas sem cidade
+- `"non_capital"` — cidade não é capital estadual
+- `"non_weather"` — pergunta fora do domínio de clima
+
 ✅ Esperado: `"tool_called": true`, resposta com temperaturas e datas
 
 ---
@@ -197,7 +218,7 @@ cd teste/backend
 source .venv/bin/activate
 pytest tests/Unit/ tests/Feature/ -v
 ```
-✅ Esperado: **30/30 PASSED**
+✅ Esperado: **42/42 PASSED**
 
 ### Suíte de validação F1 (precisa do Ollama rodando — ~8 minutos)
 ```bash
