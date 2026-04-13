@@ -10,6 +10,7 @@ Data quality note: The source capitals.json contains one known anomaly:
 """
 import json
 import logging
+import re
 import unicodedata
 from collections import defaultdict
 from pathlib import Path
@@ -145,15 +146,20 @@ class CapitalsRepository:
             key = self._normalized_index[query]
             return {"name": key, **self._data[key]}
 
-        # 2. Query contained in key (e.g. "sao paulo" in "sao paulo - sao paulo")
+        # 2. Query contained in key as a whole word (e.g. "sao paulo" in "sao paulo - sao paulo").
+        #    Whole-word boundary prevents "em" from matching inside "belem - para".
         for norm_key, orig_key in self._normalized_index.items():
-            if query in norm_key:
+            if re.search(r'\b' + re.escape(query) + r'\b', norm_key):
                 return {"name": orig_key, **self._data[orig_key]}
 
-        # 3. City part overlaps with query
+        # 3. City part overlaps with query — requires whole-word match to avoid
+        #    short Portuguese prepositions ("em", "e", "do") matching substrings
+        #    of city names ("belem", "maceio", "salvador").
         for norm_key, orig_key in self._normalized_index.items():
             city_part = norm_key.split(" - ")[0]
-            if city_part in query or query in city_part:
+            pattern_city = r'\b' + re.escape(city_part) + r'\b'
+            pattern_query = r'\b' + re.escape(query) + r'\b'
+            if re.search(pattern_city, query) or re.search(pattern_query, city_part):
                 return {"name": orig_key, **self._data[orig_key]}
 
         logger.warning("City not found in capitals database: '%s'", name)
