@@ -1,13 +1,13 @@
 {
   "layer": "hybrid-detection",
   "description": "System recall using deterministic keyword+ngram detection (LLM mocked)",
-  "dataset_size": 10,
-  "positive_count": 4,
-  "negative_count": 6,
-  "true_positives": 4,
+  "dataset_size": 19,
+  "positive_count": 10,
+  "negative_count": 9,
+  "true_positives": 10,
   "false_positives": 0,
   "false_negatives": 0,
-  "true_negatives": 6,
+  "true_negatives": 9,
   "precision": 1.0,
   "recall": 1.0,
   "f1_score": 1.0,
@@ -25,13 +25,49 @@
       "layer": "hybrid"
     },
     {
+      "prompt": "Clima de Fortaleza essa semana",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Previsão para Brasília essa semana",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Temperatura em Salvador hoje?",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Previsão em Goiânia para o fim de semana",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Como vai o tempo em Belém?",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Vai fazer frio em Porto Alegre?",
+      "expected": true,
+      "actual": true,
+      "layer": "hybrid"
+    },
+    {
       "prompt": "Vai chover em Manaus?",
       "expected": true,
       "actual": true,
       "layer": "hybrid"
     },
     {
-      "prompt": "Clima de Fortaleza essa semana",
+      "prompt": "Chuva em Recife amanhã?",
       "expected": true,
       "actual": true,
       "layer": "hybrid"
@@ -68,6 +104,24 @@
     },
     {
       "prompt": "Quanto é 2+2?",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Tô com frio aqui no escritório",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "Ela estava quente naquela festa",
+      "expected": false,
+      "actual": false,
+      "layer": "hybrid"
+    },
+    {
+      "prompt": "O ar-condicionado está gelado demais",
       "expected": false,
       "actual": false,
       "layer": "hybrid"

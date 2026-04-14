@@ -13,13 +13,13 @@
 
 | Métrica | Valor |
 |---------|-------|
-| Testes automatizados | **65/65 passando** |
-| Pontuação estimada | **115/120 pts** |
+| Testes automatizados | **196/196 passando** |
+| Pontuação estimada | **118/120 pts** |
 | Cobertura de funcionalidades | Backend + Frontend + Docker + Testes + E2E |
 | F1-score (function calling) | **0.9412** (P=0.8889, R=1.0000 — qwen2.5:1.5b) |
-| F1-score sistema híbrido | **1.0000** (P=1.0, R=1.0) |
+| F1-score sistema híbrido | **1.0000** (P=1.0, R=1.0 — dataset 19 prompts) |
 | System recall | **1.0** (todos os cenários de sistema cobertos) |
-| Suíte de system recall | `test_system_recall.py` — 16 testes |
+| Suíte de system recall | `test_system_recall.py` — 21 testes (19 prompts) |
 | PDF relatório técnico | **2 páginas** (requisito: 1-3) |
 
 Todas as funcionalidades do desafio técnico foram implementadas e testadas.
@@ -87,13 +87,13 @@ Todas as funcionalidades do desafio técnico foram implementadas e testadas.
 
 | Métrica | Resultado | Observação |
 |---------|-----------|------------|
-| Testes automatizados | **65/65** | `pytest tests/` |
-| System recall | **1.0** | Todos os cenários cobertos |
+| Testes automatizados | **196/196** | `pytest tests/` |
+| System recall | **1.0** | Dataset expandido: 19 prompts (10 pos + 9 neg) |
 | F1-score modelo (function calling) | **0.9412** | P=0.8889 R=1.0 qwen2.5:1.5b real |
 | F1-score sistema híbrido | **1.0000** | Camada determinística elimina FP |
 | PDF relatório | **2 páginas** | Requisito cumprido (1-3 páginas) |
 | Pydantic warnings | **0** | `protected_namespaces` corrigido |
-| Word-boundary fix | `CapitalsRepository.py` | Regex \b evita falsos positivos |
+| Cobertura de pipeline intent | **100%** | 8 classes de teste cobrindo todos os estágios |
 
 ---
 

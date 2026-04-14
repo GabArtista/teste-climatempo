@@ -1,4 +1,15 @@
-"""HTTP controller for agent (chat) endpoints."""
+"""
+Controller HTTP para os endpoints do agente conversacional.
+
+Expõe dois endpoints sob o prefixo `/api/v1/agent`:
+    - POST /chat   — envia uma mensagem ao agente LLM e recebe a resposta em texto.
+    - GET  /health — verifica se o Ollama está acessível e qual modelo está ativo.
+
+A injeção de dependências é feita via `Annotated[AgentService, Depends(get_agent_service)]`,
+seguindo o padrão do FastAPI. Mapeamento de exceções de domínio para status HTTP:
+    - `OllamaUnavailableError` → 503 Service Unavailable
+    - Demais exceções            → 500 Internal Server Error
+"""
 import logging
 from typing import Annotated
 
@@ -28,10 +39,31 @@ async def chat(
     agent: Annotated[AgentService, Depends(get_agent_service)],
 ) -> ChatResponse:
     """
-    Process a user message through the agentic loop.
+    [Bloco 1 — Humanizado]
+    Recebe a mensagem do usuário e a envia ao agente LLM, que decide de forma
+    autônoma se precisa consultar a API de previsão do tempo. Suporta conversas
+    multi-turno: o histórico de mensagens anteriores pode ser enviado para que o
+    agente mantenha o contexto da conversa.
 
-    The agent decides autonomously whether to call the weather tool.
-    Supports multi-turn conversations via the `history` field.
+    [Bloco 2 — Técnico]
+    Recebe `ChatRequestSchema` no corpo da requisição (campos: `message: str`,
+    `history: list[ChatMessage]`). Delega ao `AgentService.chat()`, que executa o
+    loop agêntico com o Ollama. Retorna `ChatResponse` com campos `response` (texto),
+    `tool_called` (bool), `city_queried` (str | None) e `reason` (enum de motivo).
+    Mapeamento de exceções:
+        - `OllamaUnavailableError` → HTTP 503 (Ollama offline ou modelo não carregado)
+        - `Exception` genérica     → HTTP 500 (erro inesperado, logado com detalhes)
+
+    Args:
+        request: Corpo da requisição com a mensagem do usuário e histórico opcional.
+        agent: Instância do AgentService injetada pelo FastAPI.
+
+    Returns:
+        ChatResponse com a resposta do agente e metadados sobre a tool call.
+
+    Raises:
+        HTTPException 503: Quando o Ollama não está acessível.
+        HTTPException 500: Para qualquer outro erro inesperado.
     """
     logger.info("Chat request: message=%r", request.message[:50])
     try:
@@ -60,5 +92,22 @@ async def chat(
 async def health(
     agent: Annotated[AgentService, Depends(get_agent_service)],
 ) -> dict:
-    """Return health status of the LLM agent and Ollama backend."""
+    """
+    [Bloco 1 — Humanizado]
+    Verifica se o agente e o Ollama estão funcionando corretamente. Útil para
+    monitoramento, para o frontend mostrar um indicador de status e para confirmar
+    que o modelo selecionado no startup está de fato respondendo.
+
+    [Bloco 2 — Técnico]
+    Delega ao `AgentService.check_health()`, que tenta conectar ao Ollama e retorna
+    um dicionário com informações como `status`, `model` e `ollama_reachable`.
+    Não lança exceções diretamente — o próprio `check_health` trata falhas de conexão
+    e reflete o estado no campo `status` do retorno.
+
+    Args:
+        agent: Instância do AgentService injetada pelo FastAPI.
+
+    Returns:
+        Dicionário com o status de saúde do agente e do backend Ollama.
+    """
     return await agent.check_health()

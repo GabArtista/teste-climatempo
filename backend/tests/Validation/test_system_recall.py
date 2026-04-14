@@ -3,7 +3,7 @@ System-level recall validation — tests the hybrid detection layer.
 
 Unlike test_function_calling.py (which measures LLM tool-calling recall),
 this suite tests the deterministic part of the system:
-  _is_weather_query() + _extract_city() → guaranteed tool call for any capital
+  _classify_intent() + _extract_city() → guaranteed tool call for any capital
 
 These tests run WITHOUT Ollama — the LLM is fully mocked.
 The Open-Meteo HTTP call is also mocked with sample data.
@@ -45,10 +45,19 @@ def _make_http_mock(weather_payload: dict):
 # ---------------------------------------------------------------------------
 
 SYSTEM_POSITIVE = [
+    # Stage 1 — strong keywords
     "Como está o tempo em São Paulo?",
     "Temperatura em Curitiba amanhã",
-    "Vai chover em Manaus?",
     "Clima de Fortaleza essa semana",
+    "Previsão para Brasília essa semana",
+    "Temperatura em Salvador hoje?",
+    "Previsão em Goiânia para o fim de semana",
+    # Stage 2 — fixed phrases
+    "Como vai o tempo em Belém?",
+    "Vai fazer frio em Porto Alegre?",
+    # Stage 4 — scoring-based
+    "Vai chover em Manaus?",
+    "Chuva em Recife amanhã?",
 ]
 
 SYSTEM_NON_CAPITAL = [
@@ -64,6 +73,9 @@ SYSTEM_NO_CITY = [
 SYSTEM_NON_WEATHER = [
     "Olá, tudo bem?",
     "Quanto é 2+2?",
+    "Tô com frio aqui no escritório",          # Stage 3 — personal sensation
+    "Ela estava quente naquela festa",           # Stage 3 — 3rd-person description
+    "O ar-condicionado está gelado demais",      # Stage 3 — indoor appliance
 ]
 
 
